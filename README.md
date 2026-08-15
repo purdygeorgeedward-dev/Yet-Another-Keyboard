@@ -1,3 +1,7 @@
+# Customized Keyboard
+
+Put a clown nose on everything.
+
 # Fossify Keyboard
 
 <img alt="Logo" src="graphics/icon.webp" width="120" />
