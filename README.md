@@ -48,3 +48,31 @@ Experience typing like never before – efficient, personalized, and secure. Dow
 </div>
 
 
+---
+
+## Fork changes (Yet-Another-Keyboard)
+
+- **Bugfix pass: investigated thoroughly, no changes made.** This app has
+  no `PagerAdapter`/`EventBus` usage at all - it's a single
+  `InputMethodService`, a different architecture from the other Yet-
+  Another apps, so those known patterns don't apply. Backspace/delete
+  already correctly uses `BreakIterator` for proper Unicode grapheme
+  boundary detection (so deleting handles emoji and combining characters
+  correctly, not naive single-`char` deletion), gated safely behind
+  `isNougatPlus()` with a sane fallback on older versions. No dictionary
+  or word-prediction feature exists to check for the kind of synchronous-
+  lookup typing lag that's common in predictive keyboards. Core key
+  handling (`onKey`) is well-guarded against null keyboard/input
+  connection states.
+
+  One low-confidence, not-acted-on observation: `onInitializeInterface()`
+  calls `registerOnSharedPreferenceChangeListener(this)` with no matching
+  `unregister` call anywhere in the file, and that method can be invoked
+  more than once per service instance (not just once like `onCreate()`).
+  Didn't treat this as a confirmed bug and didn't change it - Android's
+  own `SharedPreferences` implementation keys this specific listener type
+  in a way that's both idempotent for repeat registrations of the same
+  instance and doesn't hold a strong reference, unlike the `EventBus`
+  registration that was a real, confirmed leak in
+  Yet-Another-Voice-Recorder. Noting it here rather than either silently
+  ignoring it or overstating it as a fix.
