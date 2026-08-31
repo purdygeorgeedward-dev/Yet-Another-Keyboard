@@ -78,6 +78,7 @@ import org.fossify.keyboard.databinding.KeyboardViewKeyboardBinding
 import org.fossify.keyboard.dialogs.SwitchLanguageDialog
 import org.fossify.keyboard.extensions.clipsDB
 import org.fossify.keyboard.extensions.config
+import org.fossify.keyboard.extensions.createGelMinikeyboardBackground
 import org.fossify.keyboard.extensions.getCurrentClip
 import org.fossify.keyboard.extensions.getCurrentVoiceInputMethod
 import org.fossify.keyboard.extensions.getKeyboardBackgroundColor
@@ -480,12 +481,7 @@ class MyKeyboardView @JvmOverloads constructor(
         }
 
         if (!isMainKeyboard) {
-            val previewBackground = background as LayerDrawable
-            previewBackground.findDrawableByLayerId(R.id.button_background_shape)
-                .applyColorFilter(mBackgroundColor)
-            previewBackground.findDrawableByLayerId(R.id.button_background_stroke)
-                .applyColorFilter(mStrokeColor)
-            background = previewBackground
+            background = createGelMinikeyboardBackground(mBackgroundColor, mStrokeColor)
         } else {
             background.applyColorFilter(mKeyboardBackgroundColor)
         }
@@ -1063,12 +1059,7 @@ class MyKeyboardView @JvmOverloads constructor(
             }
         }
 
-        val previewBackground = mPreviewText!!.background as LayerDrawable
-        previewBackground.findDrawableByLayerId(R.id.button_background_shape)
-            .applyColorFilter(mBackgroundColor)
-        previewBackground.findDrawableByLayerId(R.id.button_background_stroke)
-            .applyColorFilter(mStrokeColor)
-        mPreviewText!!.background = previewBackground
+        mPreviewText!!.background = createGelMinikeyboardBackground(mBackgroundColor, mStrokeColor)
 
         mPreviewText!!.setTextColor(mTextColor)
         mPreviewText!!.measure(

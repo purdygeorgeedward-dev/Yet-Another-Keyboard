@@ -76,3 +76,46 @@ Experience typing like never before – efficient, personalized, and secure. Dow
   registration that was a real, confirmed leak in
   Yet-Another-Voice-Recorder. Noting it here rather than either silently
   ignoring it or overstating it as a fix.
+
+## Beautify pass (Yet-Another-Keyboard)
+
+- **Gel-styled key-press preview bubble and popup keyboard frame.** Both
+  UI elements share `minikeyboard_background.xml` (a rounded-rect
+  `LayerDrawable` with a fill and stroke layer) and were tinted at
+  runtime via `findDrawableByLayerId(...).applyColorFilter(...)` - a flat
+  `PorterDuff` tint, no gradient possible. The key-press bubble
+  specifically is arguably the single most-seen UI surface in the whole
+  app short of the keys themselves, since it appears on every keypress.
+
+  Replaced both call sites (`MyKeyboardView.showKey()` for the bubble,
+  and the `changedView.id == R.id.mini_keyboard_view` branch of
+  `setupKeyboard()` for the popup keyboard's own frame) with a shared
+  `Context.createGelMinikeyboardBackground()` - a real gradient + stroke
+  + soft highlight built fresh via `GradientDrawable`/`LayerDrawable`,
+  same technique as the Messages/Gallery gel elements built earlier this
+  session. Verified the look via a render simulation against a realistic
+  dark keyboard background before writing the final Kotlin, not just
+  reasoned about.
+
+  Deliberately left `minikeyboard_background.xml` itself untouched -
+  confirmed both call sites already fully replace the drawable at
+  runtime (assigning a brand new one, not mutating the existing one in
+  place), so the static XML file's actual content is irrelevant to the
+  visual result and doesn't need to change.
+
+  Kept `strokeColor` as a genuinely separate, caller-provided value
+  rather than deriving it from the base color the way rim colors are in
+  the other gel helpers built this session - that matches how this
+  element already worked (background and stroke are two independently
+  configurable colors here already), not a new design choice.
+
+  Caught and fixed a real mistake during this edit before it shipped: an
+  early version of the replacement left a stale `mPreviewText!!.background
+  = previewBackground` line immediately after the new drawable
+  assignment, referencing a variable that no longer existed after the
+  surrounding code was replaced - caught by grepping for the removed
+  variable name across the file after the edit, not assumed to be clean.
+
+  **Not verified on a real device** - the gradient/highlight look was
+  verified via render simulation at representative proportions and
+  colors, not confirmed against a live keyboard render.
